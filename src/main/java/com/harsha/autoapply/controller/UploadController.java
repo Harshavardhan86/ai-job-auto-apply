@@ -30,4 +30,14 @@ public class UploadController {
 		 
 		 return ResponseEntity.ok(new UploadResponse("Resume Uploaded Successfully", fileName));
 	 }
+	 
+	 @PostMapping("/resume")
+	 public ResponseEntity<UploadResponse> uploadResume(
+			 @RequestParam("file") MultipartFile file) throws IOException{
+		 
+		 String fileName=fileUploadService.uploadResume(file);
+		 
+		 return ResponseEntity.ok(new UploadResponse("Resume uploaded seccessfully",fileName));
+	 }
+	 
 }

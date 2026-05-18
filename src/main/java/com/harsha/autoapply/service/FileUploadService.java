@@ -13,6 +13,8 @@ public class FileUploadService {
 	
 	private final String SCREENSHOT_PATH="uploads/screenshots/";
 	
+	private final String RESUME_PATH="uploads/resumes";
+	
 	public String uploadScreenshot(MultipartFile file) throws IOException {
 
         String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
@@ -25,4 +27,17 @@ public class FileUploadService {
 
         return fileName;
     }
+
+	public String uploadResume(MultipartFile file) throws IOException {
+		
+		String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+
+        Path path = Paths.get(RESUME_PATH + fileName);
+
+        Files.createDirectories(path.getParent());
+
+        Files.write(path, file.getBytes());
+
+		return fileName;
+	}
 }
