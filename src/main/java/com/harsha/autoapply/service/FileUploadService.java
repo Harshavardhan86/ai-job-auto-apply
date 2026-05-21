@@ -10,34 +10,33 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class FileUploadService {
-	
-	private final String SCREENSHOT_PATH="uploads/screenshots/";
-	
-	private final String RESUME_PATH="uploads/resumes";
-	
-	public String uploadScreenshot(MultipartFile file) throws IOException {
 
+    // Use absolute path based on project root
+    private final String BASE_PATH = System.getProperty("user.dir") + "/";
+    private final String SCREENSHOT_PATH = BASE_PATH + "uploads/screenshots/";
+    private final String RESUME_PATH = BASE_PATH + "uploads/resumes/";
+
+    public String uploadScreenshot(MultipartFile file) throws IOException {
         String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-
         Path path = Paths.get(SCREENSHOT_PATH + fileName);
-
         Files.createDirectories(path.getParent());
-
         Files.write(path, file.getBytes());
-
         return fileName;
     }
 
-	public String uploadResume(MultipartFile file) throws IOException {
-		
-		String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-
+    public String uploadResume(MultipartFile file) throws IOException {
+        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
         Path path = Paths.get(RESUME_PATH + fileName);
-
         Files.createDirectories(path.getParent());
-
         Files.write(path, file.getBytes());
+        return fileName;
+    }
 
-		return fileName;
-	}
+    public String getResumePath(String fileName) {
+        return RESUME_PATH + fileName;
+    }
+
+    public String getScreenshotPath(String fileName) {
+        return SCREENSHOT_PATH + fileName;
+    }
 }

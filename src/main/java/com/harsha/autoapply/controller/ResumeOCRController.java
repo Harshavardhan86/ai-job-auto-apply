@@ -14,11 +14,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.harsha.autoapply.service.FileUploadService;
 import com.harsha.autoapply.service.GroqService;
 import com.harsha.autoapply.service.OCRService;
+import com.harsha.autoapply.service.PDFExtractorService;
 
 @RestController
-@RequestMapping("api/ocr")
+@RequestMapping("api/resume")
 @CrossOrigin("*")
-public class OCRController {
+public class ResumeOCRController {
 
     @Autowired
     private OCRService ocrService;
@@ -29,6 +30,9 @@ public class OCRController {
     @Autowired
     private FileUploadService fileUploadService;
 
+    @Autowired
+    private PDFExtractorService pdfExtractorService;
+
     @PostMapping("/upload-and-extract")
     public ResponseEntity<String> uploadAndExtract(
             @RequestParam("file") MultipartFile file) {
@@ -38,54 +42,57 @@ public class OCRController {
         }
 
         String originalName = file.getOriginalFilename();
-        if (originalName == null || (!originalName.toLowerCase().endsWith(".jpg")
-                && !originalName.toLowerCase().endsWith(".jpeg")
-                && !originalName.toLowerCase().endsWith(".png"))) {
+        if (originalName == null) {
+            return ResponseEntity.badRequest().body("Invalid file name");
+        }
+
+        String lowerName = originalName.toLowerCase();
+        boolean isPdf = lowerName.endsWith(".pdf");
+        boolean isImage = lowerName.endsWith(".jpg")
+                || lowerName.endsWith(".jpeg")
+                || lowerName.endsWith(".png");
+
+        if (!isPdf && !isImage) {
             return ResponseEntity.badRequest()
-                    .body("Only JPG and PNG images are supported");
+                    .body("Only PDF, JPG, and PNG files are supported");
         }
 
         String savedFileName;
         try {
-            savedFileName = fileUploadService.uploadScreenshot(file);
+            savedFileName = fileUploadService.uploadResume(file);
         } catch (IOException e) {
             return ResponseEntity.internalServerError()
                     .body("File upload failed: " + e.getMessage());
         }
 
-        String extractedText = ocrService.extractText(
-                "uploads/screenshots/" + savedFileName);
+        String filePath = fileUploadService.getResumePath(savedFileName);
 
-        if (extractedText.startsWith("ERROR")) {
+        String extractedText;
+
+        if (isPdf) {
+ 
+            try {
+                extractedText = pdfExtractorService.extractText(filePath);
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError()
+                        .body("PDF extraction failed: " + e.getMessage());
+            }
+        } else {
+
+            extractedText = ocrService.extractText(filePath);
+            if (extractedText.startsWith("ERROR")) {
+                return ResponseEntity.badRequest()
+                        .body("OCR failed: " + extractedText);
+            }
+        }
+
+        if (extractedText == null || extractedText.isBlank()) {
             return ResponseEntity.badRequest()
-                    .body("OCR failed: " + extractedText);
+                    .body("Could not extract any text from the file");
         }
 
         try {
-            String result = groqService.extractJobDetails(extractedText);
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body("AI extraction failed: " + e.getMessage());
-        }
-    }
-
-
-    @PostMapping("/extract")
-    public ResponseEntity<String> extractText(@RequestParam String imageName) {
-
-        String path = fileUploadService.getScreenshotPath(imageName);
-
-        String extractedText = ocrService.extractText(path);
-
-        if (extractedText.startsWith("ERROR")) {
-            return ResponseEntity.badRequest()
-                    .body("OCR failed for image: " + imageName
-                            + " | Reason: " + extractedText);
-        }
-
-        try {
-            String result = groqService.extractJobDetails(extractedText);
+            String result = groqService.extractResumeDetails(extractedText);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
