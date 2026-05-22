@@ -12,7 +12,7 @@ import java.io.File;
 @Service
 public class OCRService {
 
-    @Value("${tesseract.datapath}")
+    @Value("${tesseract.datapath}")  // where we installed tesseract
     private String tessDataPath;
 
     public String extractText(String imagePath) {

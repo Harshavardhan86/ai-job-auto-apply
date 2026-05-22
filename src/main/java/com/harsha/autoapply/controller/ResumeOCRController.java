@@ -21,24 +21,24 @@ import com.harsha.autoapply.service.PDFExtractorService;
 @CrossOrigin("*")
 public class ResumeOCRController {
 
-    @Autowired
-    private OCRService ocrService;
+    @Autowired	
+    private OCRService ocrService; 
 
-    @Autowired
-    private GroqService groqService;
+    @Autowired  
+    private GroqService groqService; 
 
-    @Autowired
-    private FileUploadService fileUploadService;
+    @Autowired  
+    private FileUploadService fileUploadService; 
 
-    @Autowired
-    private PDFExtractorService pdfExtractorService;
+    @Autowired	
+    private PDFExtractorService pdfExtractorService; 
 
     @PostMapping("/upload-and-extract")
     public ResponseEntity<String> uploadAndExtract(
             @RequestParam("file") MultipartFile file) {
 
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("No file provided");
+            return ResponseEntity.badRequest().body("No file founded");
         }
 
         String originalName = file.getOriginalFilename();

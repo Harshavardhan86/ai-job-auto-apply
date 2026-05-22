@@ -28,7 +28,7 @@ public class UploadController {
 		 
 		 String fileName=fileUploadService.uploadScreenshot(file);
 		 
-		 return ResponseEntity.ok(new UploadResponse("Resume Uploaded Successfully", fileName));
+		 return ResponseEntity.ok(new UploadResponse("screenshoot uploaded", fileName));
 	 }
 	 
 	 @PostMapping("/resume")
@@ -37,7 +37,7 @@ public class UploadController {
 		 
 		 String fileName=fileUploadService.uploadResume(file);
 		 
-		 return ResponseEntity.ok(new UploadResponse("Resume uploaded seccessfully",fileName));
+		 return ResponseEntity.ok(new UploadResponse("Resume uploaded",fileName));
 	 }
 	 
 }

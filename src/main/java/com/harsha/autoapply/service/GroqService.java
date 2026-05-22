@@ -134,4 +134,34 @@ public class GroqService {
             return rawResponse;
         }
     }
+    
+    public String generateEmailBody(
+            String candidateName,
+            String jobRole,
+            String companyName,
+            String skills,
+            String education) {
+
+        String prompt = """
+                Write a professional job application email body for the following candidate:
+
+                Candidate Name: %s
+                Applying For: %s
+                Company: %s
+                Skills: %s
+                Education: %s
+
+                Rules:
+                - Do NOT include subject line
+                - Start directly with "Dear Hiring Team,"
+                - Keep it professional and concise (1-2 paragraphs)
+                - Mention 2-3 relevant skills naturally in the email
+                - End with "Best regards," and the candidate name
+                - Do NOT use placeholder text like [Your Name] or [Company]
+                - Return ONLY the email body, no extra explanation
+
+                """.formatted(candidateName, jobRole, companyName, skills, education);
+
+        return callGroq(prompt);
+    }
 }

@@ -22,16 +22,11 @@ public class PDFExtractorService {
         try (PDDocument document = Loader.loadPDF(file)) {
 
             if (document.isEncrypted()) {
-                throw new IOException("PDF is encrypted/password protected");
+                throw new IOException("PDF is protected");
             }
 
             PDFTextStripper stripper = new PDFTextStripper();
             String text = stripper.getText(document);
-
-            if (text == null || text.isBlank()) {
-                throw new IOException(
-                    "No text found in PDF. It may be a scanned/image-based PDF.");
-            }
 
             return text;
         }
